@@ -1,54 +1,80 @@
-System Working Conditions
-The microcontroller continuously polls the LM35 sensor and makes decisions based on the following three temperature thresholds:
+# 🌡️ Smart Temperature-Controlled Fan System
 
-Low Temperature
-Below 30°C
-Fan is completely OFF
-LCD reads: NORMAL
-Buzzer is OFF
-Medium Temperature
-30°C – 40°C
-Fan turns ON at Medium Speed
-PWM Duty Cycle dynamically adjusts
-LCD updates live temperature
-High Temperature
-Above 40°C
-Fan spins at Full Speed (100% Duty Cycle)
-Buzzer sounds ALARM
-LCD reads: OVERHEAT!
-🔌
-Complete Connection Guide
-To successfully build this project, refer strictly to the pinouts mapped below.
+An automated climate control system built using the **PIC18F4580 microcontroller**. This project continuously monitors real-time environmental temperature using an **LM35 sensor**, dynamically adjusts a cooling fan's speed via **PWM**, sounds an audible alert during critical conditions, and displays real-time statuses on a **16x2 LCD display**.
 
-Microcontroller to LCD 16x2
-PIC18F4580 Pin	LCD Pin	Description
-RB0	Pin 4 (RS)	Register Select
-GND	Pin 5 (RW)	Read/Write (Grounded for write-only)
-RB1	Pin 6 (EN)	Enable Signal
-RD0 - RD7	Pin 7 - 14	8-Bit Data Bus
-+5V / GND	Pins 2 / 1	Display Power
-Sensors and Actuators
-Peripheral	PIC18F4580 Pin	Configuration Details
-LM35 Sensor	AN0 (Pin 2)	Analog Input. Connect LM35 VCC to +5V and GND to GND. Output goes directly to AN0.
-DC Fan (Proteus: MOTOR)	RC2 (CCP1)	PWM Output. In Proteus, search for MOTOR (Active DC Motor). Do NOT connect directly to PIC. RC2 goes to L293D Input 1.
-Buzzer	RC0	Digital Output. Use an NPN transistor (e.g. BC547) if buzzer current exceeds 25mA.
-Critical Note on the Fan Driver:
-A PIC microcontroller pin can only output ~25mA of current. A DC cooling fan requires 200mA+. You MUST use a Motor Driver IC (like the L293D) or a power transistor (like TIP122) between the RC2 PWM pin and the Fan.
-L293D Motor Driver Connections (for DC Fan)
-L293D Pin	Connection Point	Purpose
-Pin 1 (Enable 1)	+5V	Enables the first channel of the driver
-Pin 2 (Input 1)	PIC18F4580 Pin RC2	Receives the PWM speed control signal
-Pin 3 (Output 1)	DC Fan Terminal 1	Power Out to Fan (+)
-Pin 4 & 5 (GND)	GND	Common Ground
-Pin 6 (Output 2)	DC Fan Terminal 2	Power Out to Fan (-)
-Pin 7 (Input 2)	GND	Grounded to force fan spin in one direction only
-Pin 8 (Vs / VCC2)	+9V or +12V	High Current Motor Power Supply
-Pin 16 (Vss / VCC1)	+5V	5V Logic Power Supply for the IC
-💻
-Complete Project Code
-Copy this complete XC8 C code into MPLAB X IDE. It includes the logic for Analog-to-Digital conversion, Timer2 PWM, and LCD interfacing.
+---
 
-main.c (XC8 Compiler)
+## ⚙️ System Working Conditions
+
+The microcontroller continuously polls the LM35 sensor and executes logic routines based on three temperature thresholds:
+
+### 🔵 Low Temperature
+* **Threshold:** Below 30°C
+* **Fan State:** Completely OFF (0% Duty Cycle)
+* **LCD Readout:** `STATUS: NORMAL`
+* **Buzzer State:** OFF
+
+### 🟡 Medium Temperature
+* **Threshold:** 30°C – 40°C
+* **Fan State:** ON at Medium Speed (50% Duty Cycle)
+* **LCD Readout:** Live Temperature Updates + `STATUS: FAN ON`
+* **Buzzer State:** OFF
+
+### 🔴 High Temperature
+* **Threshold:** Above 40°C
+* **Fan State:** Full Speed (100% Duty Cycle)
+* **LCD Readout:** `STATUS: OVERHEAT`
+* **Buzzer State:** ON (Continuous Alarm)
+
+---
+
+## 🔌 Hardware Connection Guide
+
+> [!CAUTION]
+> **Critical Note on the Fan Driver:** A PIC microcontroller pin can only output ~25mA of current, whereas a DC cooling fan requires 200mA+. You **MUST** use a Motor Driver IC (like the L293D) or a power transistor (like TIP122) between the RC2 PWM pin and the Fan to prevent damaging the microcontroller.
+
+Refer strictly to the mapping tables below to wire your physical hardware or configure your Proteus simulation workspace.
+
+### 📺 Microcontroller to LCD 16x2
+
+| PIC18F4580 Pin | LCD Pin | Description |
+| :--- | :--- | :--- |
+| **RB0** | Pin 4 (RS) | Register Select |
+| **GND** | Pin 5 (RW) | Read/Write (Grounded for write-only) |
+| **RB1** | Pin 6 (EN) | Enable Signal |
+| **RD0 - RD7** | Pin 7 - 14 | 8-Bit Data Bus (D0 - D7) |
+| **+5V / GND** | Pins 2 / 1 | Display Power Supply |
+
+### 🔌 Sensors and Actuators
+
+| Peripheral | PIC18F4580 Pin | Configuration Details |
+| :--- | :--- | :--- |
+| **LM35 Sensor** | AN0 (Pin 2) | Analog Input. Connect LM35 VCC to +5V and GND to GND. Output goes directly to AN0. |
+| **DC Fan** *(Proteus: MOTOR)* | RC2 (CCP1) | PWM Output. In Proteus, search for `MOTOR` (Active DC Motor). Route through the L293D driver. |
+| **Buzzer** | RC0 | Digital Output. Use an NPN transistor (e.g., BC547) if buzzer current exceeds 25mA. |
+
+### ⚡ L293D Motor Driver Connections (for DC Fan)
+
+| L293D Pin | Connection Point | Purpose |
+| :--- | :--- | :--- |
+| **Pin 1 (Enable 1)** | +5V | Enables the first channel of the driver |
+| **Pin 2 (Input 1)** | PIC18F4580 Pin RC2 | Receives the PWM speed control signal |
+| **Pin 3 (Output 1)** | DC Fan Terminal 1 | Power Out to Fan (+) |
+| **Pin 4 & 5 (GND)** | GND | Common Ground |
+| **Pin 6 (Output 2)** | DC Fan Terminal 2 | Power Out to Fan (-) |
+| **Pin 7 (Input 2)** | GND | Grounded to force fan spin in one direction only |
+| **Pin 8 (Vs / VCC2)** | +9V or +12V | High Current Motor Power Supply |
+| **Pin 16 (Vss / VCC1)** | +5V | 5V Logic Power Supply for the IC |
+
+---
+
+## 💻 Firmware Implementation
+
+Copy this complete XC8 C code into your **MPLAB X IDE**. It features fully integrated drivers for Analog-to-Digital conversion, Timer2 PWM generation, and 8-bit LCD interfacing.
+
+### `main.c` (XC8 Compiler)
+
+```c
 #include <xc.h>
 #include <stdio.h> // For sprintf
 
@@ -192,8 +218,13 @@ void delay_ms(unsigned int ms) {
         __delay_ms(1);
     }
 }
-🧩 Code Explanation
-adc_read(): Starts the hardware analog-to-digital conversion by setting the GO bit. It then waits in a while loop until the conversion is finished before reading the 10-bit result from ADRESH and ADRESL.
-Math Magic: The LM35 outputs exactly 10 millivolts (0.01V) per degree. By multiplying the raw ADC value by 5.0 (system voltage) and dividing by 1024, we get the real voltage. Multiplying that voltage by 100 instantly converts it into degrees Celsius!
-pwm_init(): Configures the CCP1 hardware module and turns on Timer2. This generates a continuous hardware PWM wave in the background without tying up the main CPU loop.
-pwm_set_duty(): The duty cycle accepts a value from 0 to 1023 (10-bit resolution). We send 0 for fan OFF, 512 for 50% power, and 1023 for full 100% blast.
+```
+
+---
+
+## 🧩 Code Architecture & Logic
+
+* **`adc_read()`**: Automates hardware data conversion via the microcontroller's analog module. By asserting the `GO` bit, it polls the internal registers synchronously until completion, packing the split data from registers `ADRESH` and `ADRESL` into a standard 10-bit integer.
+* **The Math Magic**: The LM35 precision sensor generates an absolute linear output of $10\text{mV}/\degree\text{C}$. The software converts raw 10-bit step signals ($0-1023$) against a $5.0\text{V}$ reference into a real-world voltage value. Scaling this result by $100$ produces an accurate temperature integer value directly in Celsius.
+* **`pwm_init()`**: Sets up Timer2 alongside the hardware CCP1 (Capture/Compare/PWM) peripheral block. This allows the system to sustain high-frequency background PWM signals autonomously, saving vital CPU processing cycles.
+* **`pwm_set_duty()`**: Accepts values ranging between $0$ (stalled) up to $1023$ (maximum throughput limits) to deliver smooth duty cycle modulations to the external motor controller driver circuitry.
